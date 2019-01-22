@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	fmt.Println("ssd")
 	var wg sync.WaitGroup
 	done := make(chan interface{})
 	defer close(done) //確実にチャンネルを閉じる
