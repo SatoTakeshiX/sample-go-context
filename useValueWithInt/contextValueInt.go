@@ -10,11 +10,13 @@ func main() {
 	processRequest("jane", "abc123")
 }
 
+// キーを型定義
 type ctxKey int
 
+// 定数
 const (
-	ctxUserID ctxKey = iota
-	ctxAuthToken
+	ctxUserID    ctxKey = iota // 0
+	ctxAuthToken               // 1
 )
 
 func userID(c context.Context) string {

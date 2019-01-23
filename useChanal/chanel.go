@@ -7,29 +7,29 @@ import (
 )
 
 func main() {
-	var wg sync.WaitGroup
+	var wg sync.WaitGroup // sync.WaitGroupによってゴルーチンの完了を検知できる
 	done := make(chan interface{})
 	defer close(done) //確実にチャンネルを閉じる
 
-	wg.Add(1) //何をしているのかな？
+	wg.Add(1) //１つゴルーチンが起動したことをwgに登録
 
 	go func() {
-		defer wg.Done()
+		defer wg.Done() //ゴルーチンの終了をwgに伝える
 		if err := printGreeting(done); err != nil {
 			fmt.Printf("%v", err)
 			return
 		}
 	}()
 
-	wg.Add(1)
+	wg.Add(1) //もう一つゴルーチンが起動したことをwgに登録
 	go func() {
-		defer wg.Done()
+		defer wg.Done() //ゴルーチンの終了をwgにつたあえる
 		if err := printFarewell(done); err != nil {
 			fmt.Printf("%v", err)
 			return
 		}
 	}()
-	wg.Wait()
+	wg.Wait() // すべてのゴルーチンが終了したと伝わるまでメインゴルーチンをブロック。
 
 }
 

@@ -9,16 +9,16 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background()) //①mainがcontext.Background()で新しいContextを作り、それをcontext.WithCancelでキャンセルできるようにする
 	defer cancel()
 
-	wg.Add(1) //何をしているのかな？
+	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
 		if err := printGreeting(ctx); err != nil {
-			fmt.Printf("cannot print greeting: %v", err)
-			cancel()
+			fmt.Printf("cannot print greeting: %v\n", err)
+			cancel() //②printGreetingからエラーが返ってきたらmainはContextをキャンセルする。
 		}
 	}()
 
@@ -26,12 +26,10 @@ func main() {
 	go func() {
 		defer wg.Done()
 		if err := printFarewell(ctx); err != nil {
-			fmt.Printf("%v", err)
-			return
+			fmt.Printf("cannot print farewell: %v\n", err)
 		}
 	}()
 	wg.Wait()
-
 }
 
 func printGreeting(ctx context.Context) error {
@@ -53,7 +51,7 @@ func printFarewell(ctx context.Context) error {
 }
 
 func genGreeting(ctx context.Context) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second) //③1s後にキャンセルする。ここではlocale関数をキャンセル。
 	defer cancel()
 
 	switch locale, err := locale(ctx); {
@@ -76,16 +74,11 @@ func genFarewell(ctx context.Context) (string, error) {
 }
 
 func locale(ctx context.Context) (string, error) {
-	if deadline, ok := ctx.Deadline(); ok {
-		if deadline.Sub(time.Now().Add(1*time.Minute)) <= 0 {
-			return "", context.DeadlineExceeded
-		}
-	}
 
 	select {
 	case <-ctx.Done():
-		return "", ctx.Err()
-	case <-time.After(1 * time.Minute):
+		return "", ctx.Err() //④Contextがキャンセルされた理由を返す。
+	case <-time.After(10 * time.Second):
 	}
 	return "EN/US", nil
 }
