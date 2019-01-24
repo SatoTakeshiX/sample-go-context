@@ -78,7 +78,7 @@ func locale(ctx context.Context) (string, error) {
 	select {
 	case <-ctx.Done():
 		return "", ctx.Err() //④Contextがキャンセルされた理由を返す。
-	case <-time.After(10 * time.Second):
+	case <-time.After(10 * time.Second): // 10秒後に流れる。しかし③が1秒後に流れかつキャンセルされるので、実行されない
 	}
 	return "EN/US", nil
 }
